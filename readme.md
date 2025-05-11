@@ -162,7 +162,7 @@ However, given the controlled experimental design the following aspects were not
 
 ### **5.5 BGFormer**
 
-BGfomrer is described in Xue et al., (2024):
+BGfomer is described in Xue et al., (2024):
 https://www.sciencedirect.com/science/article/abs/pii/S1532046424001333?via%3Dihub
 
 The implementation of BGFormer was the developed without access to the original code and followed interpretation of the paper and therefore it may not fully reflect the original model. A known difference between the original model and implementation within this paper is the exclusion of the feature enhancement module.
@@ -192,7 +192,7 @@ each of these files assesses model performance when applied to the OHIOT1DM test
 
 Additionally the following file assesses model performance on a hold-out test set from the REPLACE-BG dataset enabling analsis of the population JPFormer model to generalise from the training population to a new population.
 
-## **8. Inference Dashboard
+## **8. Inference Dashboard**
 
 The inference dashboard can be used to visualise the performance of the JPFormer models on patient test data from the OHIOT1DM dataset through a TKinter GUI.
 
@@ -221,7 +221,7 @@ python inference_dashboard.py --ptid 540 --optimised_for hypo
 ```
 
 The inference framework represents a simulation of a possible continuous glucose monitoring interface. It offers the individuals current glucose level, the predicted glucose levels at 5 minute intervals for the next 120 minutes and selected warnings if current or future glucose levels fall within the hypoglycaemic or hyperglycaemic regions. Given that this is a proof of concept, new predictions are made every 1.5 seconds. In a real-world scenario, this would be every 5 minutes following new data from a continuous glucose monitor.
-  
+
 The GUI is shown below:
-  
+
 ![Inference GUI](images/Inference_GUI.jpeg)
