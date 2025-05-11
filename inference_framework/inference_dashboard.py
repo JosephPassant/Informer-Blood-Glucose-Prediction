@@ -1,5 +1,4 @@
-from masking import *
-from jpformer import JPFormer
+
 import argparse
 import tkinter as tk
 from tkinter import ttk
@@ -20,6 +19,9 @@ import queue
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(PROJECT_ROOT, "models", "jpformer"))
 sys.path.append(os.path.join(PROJECT_ROOT, "shared_utilities"))
+
+from jpformer import JPFormer
+from masking import *
 
 
 class GlucoseDashboard:
