@@ -1,8 +1,8 @@
-# **1. Blood Glucose Prediction with JPFormer**
+# **Informer-based Blood Glucose Prediction**
 
 This repository contains the implementation of JPFormer and other Informer-based models for blood glucose prediction in Type 1 Diabetes Patients.
 
-## **2. About**
+## **1. About**
 
 This project investigated Informer-based blood glucose prediction models with a specific focus on:
 
@@ -24,7 +24,7 @@ The repository includes:
 
 More details regarding each of these aspects can be found under the following sections.
 
-## **3. Requirements**
+## **2. Requirements**
 
 To run the files within this repository it is necessary to download the repository to a local directory.
 
@@ -46,7 +46,7 @@ source jpformer/bin/activate
 pip install -r requirements.txt
 ```
 
-## **4. Data**
+## **3. Data**
 
 The REPLACE-BG and OHIOT1DM datasets have been used within this project.
 
@@ -101,7 +101,7 @@ Once data is obtained, create a new subfolder within the following structure to 
         └── readme.rtf
 ```
 
-## **5. Models**
+## **4. Models**
 
 All models employ the following Informer-based architecture:
 
@@ -116,9 +116,9 @@ The attention mechanisms used within each model are as follows:
 | GPFormer | Sparse                 | Sparse                 | Sparse          |
 | BGFormer | Microscale             | Dual Attention         | Dual Attention  |
 
-### **5.1 JPFormer Model & Development**
+### **4.1 JPFormer Model & Development**
 
-#### **5.1.1 Population Model**
+#### **4.1.1 Population Model**
 
 The initial parameters for the general / population-level JPFormer model followed Zhu et al. (2024) - https://discovery.ucl.ac.uk/id/eprint/10197097/2/Li_Multi-Horizon%20Glucose%20Prediction%20Across%20Populations%20with%20Deep%20Domain%20Generalization_AAM.pdf.
 
@@ -130,7 +130,7 @@ The influence of the following aspects were then evaluated leading to the final 
 * Dropout
 * Training Epochs
 
-#### **5.1.2 Personalised Models**
+#### **4.1.2 Personalised Models**
 
 Personlised fine-tuning of the JPFormer model was performed for 10 epochs.
 The inflence of the following aspects were evaluated leading to the final fine-tuning framwork and personalised models:
@@ -139,7 +139,7 @@ The inflence of the following aspects were evaluated leading to the final fine-t
 * Batch Size
 * Dropout
 
-### **5.3 Informer**
+### **4.3 Informer**
 
 Informer is described in Zhou et al., (2021):
 https://arxiv.org/abs/2012.07436.
@@ -147,7 +147,7 @@ https://arxiv.org/abs/2012.07436.
 Impelmentation followed that detailed in the following repository:
 https://github.com/zhouhaoyi/Informer2020
 
-### **5.4 GPFormer**
+### **4.4 GPFormer**
 
 GPFormer is described in Zhu et al., (2024):
 https://ieeexplore.ieee.org/document/10599782.
@@ -160,14 +160,14 @@ However, given the controlled experimental design the following aspects were not
 * Meta-learning for domain generalisation
 * Regression with quantile loss
 
-### **5.5 BGFormer**
+### **4.5 BGFormer**
 
 BGfomer is described in Xue et al., (2024):
 https://www.sciencedirect.com/science/article/abs/pii/S1532046424001333?via%3Dihub
 
 The implementation of BGFormer was the developed without access to the original code and followed interpretation of the paper and therefore it may not fully reflect the original model. A known difference between the original model and implementation within this paper is the exclusion of the feature enhancement module.
 
-## **6. Clinically Weighted Loss Function**
+## **5. Clinically Weighted Loss Function**
 
 A novel clinically weighted loss function was developed in the course of this project to address observed limitations of Mean Squared Error loss in the context of blood glucose prediction.
 
@@ -175,7 +175,7 @@ This loss function applies a weighting to MSE loss based upon both the clinical 
 
 This loss function is defined in the shared_utilities.dual_weighted_loss_function.py.
 
-## **7. Evaluation**
+## **6. Evaluation**
 
 Whilst RMSE and MAPE were used as standard evaluation metrics. Model evaluation was centred on clincial performance assessed through Continous Glucose Error Grid Analysis (CG-EGA) (Kovatchev et al., 2004):
 https://diabetesjournals.org/care/article/27/8/1922/23343/Evaluating-the-Accuracy-of-Continuous-Glucose
@@ -192,7 +192,7 @@ each of these files assesses model performance when applied to the OHIOT1DM test
 
 Additionally the following file assesses model performance on a hold-out test set from the REPLACE-BG dataset enabling analsis of the population JPFormer model to generalise from the training population to a new population.
 
-## **8. Inference Dashboard**
+## **7. Inference Dashboard**
 
 The inference dashboard can be used to visualise the performance of the JPFormer models on patient test data from the OHIOT1DM dataset through a TKinter GUI.
 
