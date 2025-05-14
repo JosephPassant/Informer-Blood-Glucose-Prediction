@@ -36,13 +36,14 @@ If using conda run the following commands to create a new environment and instal
 conda create -n jpformer python=3.12.8
 conda activate jpformer
 pip install -r requirements.txt
-```  
-  
+```
+
 If pip is not installed within your conda environment, run the following command to install pip:
+
 ```bash
 conda install pip
 ```
-  
+
 Or, if using venv run the following commands to create a new environment and install the requirements:
 
 ```bash
@@ -66,7 +67,7 @@ The source data has not been included within this repository due to the size of 
 The REPLACE-BG dataset is available from:
 https://public.jaeb.org/dataset/546
 
-The OHIOT1DM dataset is available by following the instructions on the following website:
+The OHIOT1DM dataset is available by following the instructions at:
 https://webpages.charlotte.edu/rbunescu/ohiot1dm.html
 
 Once data is obtained, create a new subfolder within the following structure to enable compatabilty with the data processing files which can then be used to create the processed data files needed to replicate model development.
@@ -125,7 +126,7 @@ The attention mechanisms used within each model are as follows:
 
 #### **4.1.1 Population Model**
 
-The initial parameters for the general / population-level JPFormer model followed Zhu et al. (2024) - https://discovery.ucl.ac.uk/id/eprint/10197097/2/Li_Multi-Horizon%20Glucose%20Prediction%20Across%20Populations%20with%20Deep%20Domain%20Generalization_AAM.pdf.
+The initial parameters for the general / population-level JPFormer model followed [Zhu et al. (2024)](https://discovery.ucl.ac.uk/id/eprint/10197097/2/Li_Multi-Horizon%20Glucose%20Prediction%20Across%20Populations%20with%20Deep%20Domain%20Generalization_AAM.pdf).
 
 The influence of the following aspects were then evaluated leading to the final population JPFormer model:
 
@@ -135,7 +136,7 @@ The influence of the following aspects were then evaluated leading to the final 
 * Dropout
 * Training Epochs
 
-The final JPFormer model is lacated at models/jpformer/jpformer.py. 
+The final JPFormer model is located at [models/jpformer/jpformer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/jpformer/jpformer.py).
 
 #### **4.1.2 Personalised Models**
 
@@ -148,70 +149,68 @@ The inflence of the following aspects were evaluated leading to the final fine-t
 
 ### **4.3 Informer**
 
-Informer is described in Zhou et al., (2021):
-https://arxiv.org/abs/2012.07436.
+Informer is described in [Zhou et al., (2021)](https://arxiv.org/abs/2012.07436).
 
 Impelmentation followed that detailed in the following repository:
 https://github.com/zhouhaoyi/Informer2020
 
-The informer model used is located at models/informer/Informer.py
+The informer model used is located at [models/informer/Informer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/informer/Informer.py).
 
 ### **4.4 GPFormer**
-  
-GPFormer is described in Zhu et al., (2024):
-https://ieeexplore.ieee.org/document/10599782.
-  
-The implementation of GPFormer was Informer by the following repository:
+
+GPFormer is described in [Zhu et al., (2024)](https://ieeexplore.ieee.org/document/10599782).
+
+The implementation of GPFormer was informered by the following repository:
 https://gitlab.doc.ic.ac.uk/tz2916/GPFormer
-  
+
 However, given the controlled experimental design the following aspects were not included within the implementation to enable standardised comparisons of attention mechanisms across Informer-based models:
-  
+
 * Meta-learning for domain generalisation
 * Regression with quantile loss
-  
-The GPFormer model used is located at models/gpformer/GPFormer.py.
-  
+
+The GPFormer model used is located at [models/gpformer/GPFormer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/gpformer/GPFormer.py).
+
 ### **4.5 BGFormer**
-  
-BGfomer is described in Xue et al., (2024):
-https://www.sciencedirect.com/science/article/abs/pii/S1532046424001333?via%3Dihub
-  
+
+BGfomer is described in [Xue et al., (2024)](https://www.sciencedirect.com/science/article/abs/pii/S1532046424001333?via%3Dihub).
+
 The implementation of BGFormer was the developed without access to the original code and followed interpretation of the paper and therefore it may not fully reflect the original model. A known difference between the original model and implementation within this paper is the exclusion of the feature enhancement module.
-  
-The BGFormer model used is located at models/bgformer/BGFormer.py.
-  
+
+The BGFormer model used is located at [models/bgformer/BGFormer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/bgformer/BGFormer.py).
+
 ## **5. Clinically Weighted Loss Function**
 
 A novel clinically weighted loss function was developed in the course of this project to address observed limitations of Mean Squared Error loss in the context of blood glucose prediction.
 
 This loss function applies a weighting to MSE loss based upon both the clinical accuracy of the prediction as well as the glycaemic region of the true glucose value. This weighting minimises potentially harmful prediction errors, and error within the hypoglycaemic region in particular, more heavily. This suports model safety and  helps overvome the class imbalance present within blood glucose data.
 
-This loss function is defined in shared_utilities/dual_weighted_loss_function.py
+This loss function is defined in [shared_utilities/dual_weighted_loss_function.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/shared_utilities/dual_weighted_loss_function.py).
 
 ## **6. Evaluation**
 
-Whilst RMSE and MAPE were used as standard evaluation metrics. Model evaluation was centred on clincial performance assessed through Continous Glucose Error Grid Analysis (CG-EGA) (Kovatchev et al., 2004):
-https://diabetesjournals.org/care/article/27/8/1922/23343/Evaluating-the-Accuracy-of-Continuous-Glucose
+Whilst RMSE and MAPE were used as standard evaluation metrics. Model evaluation was centred on clincial performance assessed through Continous Glucose Error Grid Analysis (CG-EGA) [(Kovatchev et al., 2004)](https://diabetesjournals.org/care/article/27/8/1922/23343/Evaluating-the-Accuracy-of-Continuous-Glucose).
 
 Implementation of CG-EGA was adapted from the following repository:
 https://github.com/dotXem/CG-EGA
 
-The implementation of CG-EGA is located in shared_utilities/metrics.py
+The implementation of CG-EGA is located at [shared_utilities/CG_EGA.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/shared_utilities/dual_weighted_loss_function.py).
 
-While the primary evaluation files include:
+The primary evaluation files are:
 
-* evaluation/population_model_evaluation/evaluation_of_base_models_ohio_test_set.ipynb
-* evaluation/fine_tuning_evaluation/evaluation_of_fine_tuned_models_ohio_test_set.ipynb
+* [evaluation/population_model_evaluation/evaluation_of_base_models_ohio_test_set.ipynb](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/evaluation/population_model_evaluation/evaluation_of_base_models_ohio_test_set.ipynb).
+* [evaluation/fine_tuning_evaluation/evaluation_of_fine_tuned_models_ohio_test_set.ipynb](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/evaluation/fine_tuning_evaluation/evaluation_of_fine_tuned_models_ohio_test_set.ipynb).
 
 Each of these files assesses model performance when applied to the OHIOT1DM test sets.
 
-Additionally the following file assesses model performance on a hold-out test set from the REPLACE-BG dataset enabling analsis of the population JPFormer model to generalise from the training population to a new population.
+Additionally the following file assesses model performance on a hold-out test set from the REPLACE-BG dataset enabling analysis of the population JPFormer model's ability to generalise from the training population to a new population.
 
-* evaluation/population_model_evaluation/evaluation_of_base_models_replace_bg_test_set.ipynb
+* [evaluation/population_model_evaluation/evaluation_of_population_model_on_replace_bg_test_set.ipynb](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/evaluation/population_model_evaluation/evaluation_of_base_models_replace_bg_test_set.ipynb).
 
 ## **7. Inference Dashboard**
 
 The inference dashboard can be used to visualise the performance of the JPFormer models on patient test data from the OHIOT1DM dataset through a TKinter GUI.
+
+The inference framework is located at [inference/inference_dashboard.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/inference_framework/inference_dashboard.py).
 
 This can be run by navigating to the inference directory in command line and running the following command:
 
