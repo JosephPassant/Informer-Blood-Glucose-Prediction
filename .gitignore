@@ -1,3 +1,4 @@
 data/processed_data/replace_bg/
-data/source_data/
+data/source_data/SourceData/ReplaceBG/
+data/source_data/SourceData/Ohio/Train/
 .DS_Store
