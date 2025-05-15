@@ -6,10 +6,7 @@ import sys
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(current_dir, "../../../../../"))
-
-
-
+PROJECT_ROOT = os.path.abspath(os.path.join(current_dir, "../../"))
 
 sys.path.append(os.path.join(PROJECT_ROOT, "models/jpformer"))
 from jpformer_utilities.microscale_decoder import *
