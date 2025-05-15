@@ -433,7 +433,7 @@ class GlucoseDashboard:
 
     def update_predictions(self, predictions_df, hypo_warning, hyper_warning):
         """Update prediction warnings and chart"""
-
+ 
         # update timestamp if available in predictions_df
         if predictions_df is not None and len(
                 predictions_df) > 0 and 'timestamp' in predictions_df.columns:
@@ -451,6 +451,7 @@ class GlucoseDashboard:
             current_hyper = False
 
         # update warnings based on current glucose and prediction results
+        # PRIORITIZE CURRENT CONDITIONS OVER PREDICTIONS
         if current_hypo:
             self.warning_label.config(
                 text="WARNING: Current Hypoglycaemia - Consider Action!",
@@ -463,55 +464,53 @@ class GlucoseDashboard:
                 foreground=self.HYPER_HEX,
                 font=("montserrat", 24, "bold")
             )
-
-        elif not hypo_warning and not hyper_warning:
-            self.warning_label.config(
-                text="Blood Glucose is Stable",
-                foreground=self.NORMAL_HEX,
-                font=("montserrat", 24, "bold")
-            )
-
-        elif hypo_warning and hyper_warning:
-            hypo_time = hypo_warning.strftime("%H:%M") if isinstance(
-                hypo_warning, datetime) else hypo_warning
-            hyper_time = hyper_warning.strftime("%H:%M") if isinstance(
-                hyper_warning, datetime) else hyper_warning
-            if hypo_time < hyper_time:
+        # Only show predicted warnings if no current warnings exist
+        elif not current_hypo and not current_hyper:
+            if not hypo_warning and not hyper_warning:
                 self.warning_label.config(
-                    text=(
-                        f"WARNING: Hypoglycaemia Predicted at {hypo_time}\n"
-                        f"Hyperglycaemia Predicted at {hyper_time}"
-                    ),
+                    text="Blood Glucose is Stable",
+                    foreground=self.NORMAL_HEX,
+                    font=("montserrat", 24, "bold")
+                )
+            elif hypo_warning and hyper_warning:
+                hypo_time = hypo_warning.strftime("%H:%M") if isinstance(
+                    hypo_warning, datetime) else hypo_warning
+                hyper_time = hyper_warning.strftime("%H:%M") if isinstance(
+                    hyper_warning, datetime) else hyper_warning
+                if hypo_time < hyper_time:
+                    self.warning_label.config(
+                        text=(
+                            f"WARNING: Hypoglycaemia Predicted at {hypo_time}\n"
+                            f"Hyperglycaemia Predicted at {hyper_time}"
+                        ),
+                        foreground=self.HYPO_HEX,
+                        font=("montserrat", 24, "bold")
+                    )
+                else:
+                    self.warning_label.config(
+                        text=(
+                            f"WARNING: Hyperglycaemia Predicted at {hyper_time}\n"
+                            f"Hypoglycaemia Predicted at {hypo_time}"
+                        ),
+                        foreground=self.HYPER_HEX,
+                        font=("montserrat", 24, "bold")
+                    )
+            elif hypo_warning:
+                hypo_time = hypo_warning.strftime("%H:%M") if isinstance(
+                    hypo_warning, datetime) else hypo_warning
+                self.warning_label.config(
+                    text=f"WARNING: Hypoglycaemia Predicted at {hypo_time}",
                     foreground=self.HYPO_HEX,
                     font=("montserrat", 24, "bold")
                 )
-            else:
+            elif hyper_warning:
+                hyper_time = hyper_warning.strftime("%H:%M") if isinstance(
+                    hyper_warning, datetime) else hyper_warning
                 self.warning_label.config(
-                    text=(
-                        f"WARNING: Hyperglycaemia Predicted at {hyper_time}\n"
-                        f"Hypoglycaemia Predicted at {hypo_time}"
-                    ),
+                    text=f"WARNING: Hyperglycaemia Predicted at {hyper_time}",
                     foreground=self.HYPER_HEX,
                     font=("montserrat", 24, "bold")
                 )
-
-        elif hypo_warning:
-            hypo_time = hypo_warning.strftime("%H:%M") if isinstance(
-                hypo_warning, datetime) else hypo_warning
-            self.warning_label.config(
-                text=f"WARNING: Hypoglycaemia Predicted at {hypo_time}",
-                foreground=self.HYPO_HEX,
-                font=("montserrat", 24, "bold")
-            )
-
-        elif hyper_warning:
-            hyper_time = hyper_warning.strftime("%H:%M") if isinstance(
-                hyper_warning, datetime) else hyper_warning
-            self.warning_label.config(
-                text=f"WARNING: Hyperglycaemia Predicted at {hyper_time}",
-                foreground=self.HYPER_HEX,
-                font=("montserrat", 24, "bold")
-            )
 
         self.update_chart(predictions_df)
 
@@ -630,15 +629,15 @@ class GlucoseDashboard:
                 if "last_timestamp" in data and data["last_timestamp"] is not None:
                     self.update_timestamp(data["last_timestamp"])
 
-                # update current glucose, regardless of missing data flag
+                # update current glucose
                 if "current_glucose" in data:
                     self.update_current_glucose(data["current_glucose"])
+                    # Store the current glucose value for use in prediction updates
+                    self.current_glucose = data["current_glucose"]
 
                 # handle missing data cases for predictions
                 if "missing_data" in data and data["missing_data"]:
-
                     self.show_missing_data_message()
-
                     # prioritise current glucose warnings over "no predictions" message
                     if "current_glucose" in data:
                         self.clear_warnings(data["current_glucose"])
@@ -647,6 +646,7 @@ class GlucoseDashboard:
 
                 # only update prediction data if predictions are available
                 elif "predictions_df" in data:
+                    # Always check current glucose state when updating predictions
                     self.update_predictions(
                         data["predictions_df"],
                         data["hypo_warning"],
@@ -749,7 +749,6 @@ class GlucoseDashboard:
                 )
 
                 if not can_predict:
-                    #  could still have current glucose that should be displayed
                     self.data_queue.put({
                         "status": (
                             f"Skipping index {self.starting_index} - "
@@ -769,13 +768,13 @@ class GlucoseDashboard:
 
                 # update dashboard with new data
                 self.data_queue.put({
-                    "current_glucose": current_glucose,
+                    "current_glucose": current_glucose,  # Always include current glucose
                     "predictions_df": output_df,
                     "hypo_warning": hypo_time,
                     "hyper_warning": hyper_time,
                     "last_timestamp": last_timestamp,
                     "status": f"Processing data point {self.starting_index} of {len(self.df)}",
-                    "missing_data": False  # Flag to indicate valid data
+                    "missing_data": False
                 })
 
                 # sleep for 1.5 seconds to simulate real-time processing
@@ -1044,9 +1043,6 @@ def main():
     # create Tkinter window
     root = tk.Tk()
     root.title("Blood Glucose Monitoring Dashboard")
-
-    # set window to open maximised (works on windows not mac)
-    root.state('zoomed')
 
     app = GlucoseDashboard(root, ptid=args.ptid,
                            optimised_for=args.optimised_for)
