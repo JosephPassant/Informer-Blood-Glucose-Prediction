@@ -229,7 +229,7 @@ The inference dashboard can be used to visualise the performance of the JPFormer
 
 The inference framework is located at [inference/inference_dashboard.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/inference_framework/inference_dashboard.py).
 
-This can be run by navigating to the inference directory in command line and running the following command:
+This can be run by navigating to the [inference_framework](inference_framework) directory in command line and running the following command:
 
 ```bash
 python inference_dashboard.py --ptid --optimised_for
