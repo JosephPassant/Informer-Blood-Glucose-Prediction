@@ -1,3 +1,5 @@
+from dual_weighted_loss_function import *
+from utilities import *
 import pandas as pd
 import torch
 import numpy as np
@@ -14,11 +16,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(current_dir, "../"))
 
 sys.path.append(os.path.join(PROJECT_ROOT, "shared_utilities"))
-from metrics import *
-from utilities import *
-from dual_weighted_loss_function import *
 # Set configuration file path
-config_path = os.path.join(PROJECT_ROOT, 'models/shared_config_files/evaluation_config_without_feature_enhancement.json')
+config_path = os.path.join(
+    PROJECT_ROOT, 'models/shared_config_files/evaluation_config_without_feature_enhancement.json')
 
 # Load configuration file
 config_dict = load_config(config_path)
@@ -29,7 +29,7 @@ def get_cg_ega_mappings():
     """
     Returns the mappings used to convert P-EGA and R-EGA classifications to CG-EGA classes (AP, BE, EP)
     for different glycemic regions.
-    
+
     Returns:
         dict: Dictionary containing mappings for hypoglycemia, euglycemia, and hyperglycemia
     """
@@ -105,7 +105,7 @@ def get_cg_ega_mappings():
         ("D", "*"): "EP",
         ("E", "*"): "EP"
     }
-    
+
     return {
         "hypo": hypo_mapping,
         "eu": eu_mapping,
@@ -121,12 +121,12 @@ def map_cg_ega(p_label, r_label, glucose_region):
         p_label: String, P-EGA classification (A, B, C, D, E)
         r_label: String, R-EGA classification (A, B, uC, lC, uD, lD, uE, lE)
         glucose_region: String, one of ("hypo", "eu", "hyper")
-    
+
     Returns:
         String, CG-EGA classification (AP, BE, EP)
     """
     mappings = get_cg_ega_mappings()
-    
+
     if glucose_region == "hypo":
         mapping = mappings["hypo"]
     elif glucose_region == "eu":
@@ -148,7 +148,7 @@ def map_cg_ega(p_label, r_label, glucose_region):
 class ModelTester:
     """
     Class for evaluating the trained model on test data.
-    
+
     Methods:
         test(): Runs evaluation on test data and computes RMSE, MAE, and CG-EGA metrics.
     """
@@ -172,7 +172,7 @@ class ModelTester:
         """
         Run the test evaluation and compute RMSE, MAE, and CG-EGA metrics.
         Creates a detailed DataFrame with one prediction per row for fine-grained analysis.
-        
+
         Returns:
             tuple: (average_rmse, average_mae, stats_tables, detailed_df)
             - average_rmse: Average RMSE across all batches
@@ -185,7 +185,7 @@ class ModelTester:
         num_batches = len(self.test_loader)
         all_results = []
         sequence_ids = []  # Track which sequence each point belongs to
-        
+
         with torch.no_grad():
             for batch_idx, (batch_x, batch_dec, batch_y) in enumerate(self.test_loader):
                 batch_x, batch_dec, batch_y = (
@@ -213,14 +213,14 @@ class ModelTester:
                     seq_id = batch_idx * batch_x.shape[0] + i
                     true_values = batch_y[i].cpu().numpy().flatten()
                     pred_values = outputs[i].cpu().numpy().flatten()
-                    
+
                     # Calculate derivatives using np.diff with zero insertion (consistent with original implementation)
                     true_derivatives = np.zeros_like(true_values)
                     pred_derivatives = np.zeros_like(pred_values)
                     if len(true_values) > 1:
                         true_derivatives[1:] = np.diff(true_values) / 5
                         pred_derivatives[1:] = np.diff(pred_values) / 5
-                    
+
                     # Store each point in the sequence with its metadata
                     for t in range(len(true_values)):
                         all_results.append({
@@ -234,62 +234,65 @@ class ModelTester:
 
         # Create initial DataFrame
         detailed_df = pd.DataFrame(all_results)
-        
+
         # Denormalize the values (consistent with original implementation)
-        detailed_df["true_glucose"] = detailed_df["true"] * config.std + config.mean
-        detailed_df["predicted_glucose"] = detailed_df["predicted"] * config.std + config.mean
+        detailed_df["true_glucose"] = detailed_df["true"] * \
+            config.std + config.mean
+        detailed_df["predicted_glucose"] = detailed_df["predicted"] * \
+            config.std + config.mean
         detailed_df["dy_true_glucose"] = detailed_df["dy_true"] * config.std
         detailed_df["dy_pred_glucose"] = detailed_df["dy_pred"] * config.std
-        
-        
+
         # Prepare lists to store classifications
         p_ega_classifications = []
         r_ega_classifications = []
         cg_ega_classifications = []
-        
+
         # Process each sequence to calculate P-EGA, R-EGA, and CG-EGA
         for seq_id in detailed_df["sequence_id"].unique():
             seq_data = detailed_df[detailed_df["sequence_id"] == seq_id]
-            
+
             # Get sorted data for this sequence
             seq_data = seq_data.sort_values("timepoint")
             true_glucose = seq_data["true_glucose"].values
             predicted_glucose = seq_data["predicted_glucose"].values
             dy_true_glucose = seq_data["dy_true_glucose"].values
             dy_pred_glucose = seq_data["dy_pred_glucose"].values
-            
+
             # Calculate CG-EGA for the sequence
             cg_ega = CG_EGA_Loss(
-                true_glucose, 
-                dy_true_glucose, 
-                predicted_glucose, 
+                true_glucose,
+                dy_true_glucose,
+                predicted_glucose,
                 dy_pred_glucose,
                 freq=5
             )
-            
+
             # Calculate P-EGA (point error grid)
             p_ega_results = P_EGA_Loss(
-                true_glucose, 
-                dy_true_glucose, 
+                true_glucose,
+                dy_true_glucose,
                 predicted_glucose
             ).full()
-            
+
             # Calculate R-EGA (rate error grid)
             r_ega_results = R_EGA_Loss(
-                dy_true_glucose, 
+                dy_true_glucose,
                 dy_pred_glucose
             ).full()
-            
+
             # Convert one-hot encoded results to class labels
-            p_ega_labels = np.array(["A", "B", "C", "D", "E"])[np.argmax(p_ega_results, axis=1)]
-            r_ega_labels = np.array(["A", "B", "uC", "lC", "uD", "lD", "uE", "lE"])[np.argmax(r_ega_results, axis=1)]
-            
+            p_ega_labels = np.array(["A", "B", "C", "D", "E"])[
+                np.argmax(p_ega_results, axis=1)]
+            r_ega_labels = np.array(["A", "B", "uC", "lC", "uD", "lD", "uE", "lE"])[
+                np.argmax(r_ega_results, axis=1)]
+
             # Determine glycemic region for each point
             regions = np.where(
-                true_glucose <= 70, "hypo", 
+                true_glucose <= 70, "hypo",
                 np.where(true_glucose <= 180, "eu", "hyper")
             )
-            
+
             # Get CG-EGA classifications (AP, BE, EP)
             sample_classifications = np.array([
                 cg_ega.map_cg_ega(p_idx, r_idx, region)
@@ -299,25 +302,25 @@ class ModelTester:
                     regions
                 )
             ])
-            
+
             # Append to our lists in the original sequence order
             for idx in seq_data.index:
                 pos = seq_data.loc[idx, "timepoint"]
                 p_ega_classifications.append(p_ega_labels[pos])
                 r_ega_classifications.append(r_ega_labels[pos])
                 cg_ega_classifications.append(sample_classifications[pos])
-        
+
         # Add classifications to DataFrame
         detailed_df["P_EGA_Class"] = p_ega_classifications
         detailed_df["R_EGA_Class"] = r_ega_classifications
         detailed_df["CG_EGA_Class"] = cg_ega_classifications
-        
+
         # Add glycemic region column
         detailed_df["glycemic_region"] = np.where(
-            detailed_df["true_glucose"] <= 70, "hypo", 
+            detailed_df["true_glucose"] <= 70, "hypo",
             np.where(detailed_df["true_glucose"] <= 180, "eu", "hyper")
         )
-        
+
         # Generate statistics for specific timepoints (30, 60, 90, 120 minutes)
         timepoints = {
             "30min": 5,   # 30 minutes = index 5
@@ -325,7 +328,7 @@ class ModelTester:
             "90min": 17,  # 90 minutes = index 17
             "120min": 23  # 120 minutes = index 23
         }
-        
+
         # Initialize statistics tables
         timepoint_stats = {}
         region_stats = {
@@ -334,7 +337,7 @@ class ModelTester:
             "hyper": {"AP": 0, "BE": 0, "EP": 0, "count": 0},
             "overall": {"AP": 0, "BE": 0, "EP": 0, "count": 0}
         }
-        
+
         # Initialize timepoint statistics
         for tp_name in timepoints:
             timepoint_stats[tp_name] = {
@@ -343,33 +346,39 @@ class ModelTester:
                 "hyper": {"AP": 0, "BE": 0, "EP": 0, "count": 0},
                 "overall": {"AP": 0, "BE": 0, "EP": 0, "count": 0}
             }
-        
+
         # Group data for statistics
         for region in ["hypo", "eu", "hyper"]:
             region_data = detailed_df[detailed_df["glycemic_region"] == region]
-            region_stats[region]["AP"] = sum(region_data["CG_EGA_Class"] == "AP")
-            region_stats[region]["BE"] = sum(region_data["CG_EGA_Class"] == "BE")
-            region_stats[region]["EP"] = sum(region_data["CG_EGA_Class"] == "EP")
+            region_stats[region]["AP"] = sum(
+                region_data["CG_EGA_Class"] == "AP")
+            region_stats[region]["BE"] = sum(
+                region_data["CG_EGA_Class"] == "BE")
+            region_stats[region]["EP"] = sum(
+                region_data["CG_EGA_Class"] == "EP")
             region_stats[region]["count"] = len(region_data)
-            
+
             region_stats["overall"]["AP"] += region_stats[region]["AP"]
             region_stats["overall"]["BE"] += region_stats[region]["BE"]
             region_stats["overall"]["EP"] += region_stats[region]["EP"]
             region_stats["overall"]["count"] += region_stats[region]["count"]
-            
+
             # Calculate statistics for specific timepoints
             for tp_name, tp_idx in timepoints.items():
                 tp_data = region_data[region_data["timepoint"] == tp_idx]
-                timepoint_stats[tp_name][region]["AP"] = sum(tp_data["CG_EGA_Class"] == "AP") 
-                timepoint_stats[tp_name][region]["BE"] = sum(tp_data["CG_EGA_Class"] == "BE")
-                timepoint_stats[tp_name][region]["EP"] = sum(tp_data["CG_EGA_Class"] == "EP")
+                timepoint_stats[tp_name][region]["AP"] = sum(
+                    tp_data["CG_EGA_Class"] == "AP")
+                timepoint_stats[tp_name][region]["BE"] = sum(
+                    tp_data["CG_EGA_Class"] == "BE")
+                timepoint_stats[tp_name][region]["EP"] = sum(
+                    tp_data["CG_EGA_Class"] == "EP")
                 timepoint_stats[tp_name][region]["count"] = len(tp_data)
-                
+
                 timepoint_stats[tp_name]["overall"]["AP"] += timepoint_stats[tp_name][region]["AP"]
                 timepoint_stats[tp_name]["overall"]["BE"] += timepoint_stats[tp_name][region]["BE"]
                 timepoint_stats[tp_name]["overall"]["EP"] += timepoint_stats[tp_name][region]["EP"]
                 timepoint_stats[tp_name]["overall"]["count"] += timepoint_stats[tp_name][region]["count"]
-        
+
         # Create percentage tables
         # Create tables with counts
         def create_count_table(stats_dict):
@@ -382,31 +391,32 @@ class ModelTester:
                     "Count": counts["count"]
                 }
             return pd.DataFrame(table).T
-        
+
         # Create the region and timepoint tables
         region_table = create_count_table(region_stats)
         timepoint_tables = {}
         for tp_name in timepoints:
-            timepoint_tables[tp_name] = create_count_table(timepoint_stats[tp_name])
-        
+            timepoint_tables[tp_name] = create_count_table(
+                timepoint_stats[tp_name])
+
         # Print summary
         print(f"\nTest Average RMSE: {total_rmse/num_batches:.4f}")
         print(f"Test Average MAE: {total_mae/num_batches:.4f}")
-        
+
         print("\nOverall CG-EGA Statistics by Glycemic Region:")
         print(region_table)
-        
+
         for tp_name in timepoints:
             print(f"\nCG-EGA Statistics at {tp_name}:")
             print(timepoint_tables[tp_name])
-        
+
         # Return results in order expected by the main script
         stats_tables = {
             "overall": region_table,
             "timepoints": timepoint_tables
         }
-        
+
         average_rmse = total_rmse / num_batches
         average_mae = total_mae / num_batches
-        
+
         return average_rmse, average_mae, stats_tables, detailed_df

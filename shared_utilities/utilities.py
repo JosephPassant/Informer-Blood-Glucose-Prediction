@@ -10,13 +10,13 @@ def create_dir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+
 class ForeverDataIterator:
     r"""A data iterator that will never stop producing data"""
 
     def __init__(self, data_loader: DataLoader):
         self.data_loader = data_loader
         self.iter = iter(self.data_loader)
-
 
     def __next__(self):
         try:
@@ -28,7 +28,6 @@ class ForeverDataIterator:
 
     def __len__(self):
         return len(self.data_loader)
-
 
 
 class AverageMeter(object):
@@ -54,7 +53,6 @@ class AverageMeter(object):
     def __str__(self):
         fmtstr = '{name} {val' + self.fmt + '} ({avg' + self.fmt + '})'
         return fmtstr.format(**self.__dict__)
-
 
 
 class ProgressMeter(object):
@@ -156,31 +154,32 @@ class BloodGlucoseDataset(Dataset):
 
         # No need to pass time features separately, already part of encoder_input & decoder_input
         return encoder_input, decoder_input, target
-    
-       
+
+
 def compute_batch_derivatives(batch_values, interval=5):
     """
     Compute derivatives for a batch of time series data.
-    
+
     Args:
         batch_values: numpy array of shape (batch_size, seq_len, features)
         interval: time interval between consecutive measurements in minutes (default: 5)
-        
+
     Returns:
         numpy array of derivatives with same shape as input
     """
     batch_size, seq_len = batch_values.shape[0], batch_values.shape[1]
-    
+
     # Initialize output array with same shape as input
     derivatives = np.zeros_like(batch_values)
-    
+
     # Calculate derivatives for each sequence in the batch
     for b in range(batch_size):
         # First derivative is zero (no previous value)
         # For remaining points, calculate rate of change
         derivatives[b, 1:] = np.diff(batch_values[b], axis=0) / interval
-    
+
     return derivatives
+
 
 def load_config(config_path=None):
     # print(f"Attempting to load config from: {config_path}")  # Debugging print statement
@@ -189,10 +188,12 @@ def load_config(config_path=None):
     with open(config_path, "r") as file:
         return json.load(file)
 
+
 class ConfigObject:
     def __init__(self, config_dict):
         for key, value in config_dict.items():
             setattr(self, key, value)
+
 
 def create_dir(directory):
     """
