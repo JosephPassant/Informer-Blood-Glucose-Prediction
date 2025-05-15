@@ -225,11 +225,9 @@ Additionally the following file assesses model performance on a hold-out test se
 
 ## **7. Inference Dashboard**
 
-The inference dashboard can be used to visualise the performance of the JPFormer models on patient test data from the OHIOT1DM dataset through a TKinter GUI.
+The [inference dashboard](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/inference_framework/inference_dashboard.py) can be used to visualise the performance of the JPFormer models on patient test data from the OHIOT1DM dataset through a TKinter GUI.
 
-The inference framework is located at [inference/inference_dashboard.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/inference_framework/inference_dashboard.py).
-
-This can be run by navigating to the [inference_framework](inference_framework) directory in command line and running the following command:
+This can be run by navigating to the [inference_framework](inference_framework) directory in command line and running the following command passing the desired patient ID and optimised_for arguments:
 
 ```bash
 python inference_dashboard.py --ptid --optimised_for
@@ -240,7 +238,7 @@ python inference_dashboard.py --ptid --optimised_for
 The available patient IDs are:
 [540, 544, 552, 559, 563, 567, 570, 575, 584, 588, 591, 596]
 
-'optimised_for' reflects the subjective decision of clinicians or patients may wish to make to minimise model errors across all glycaemic regions or to prioritise minimisation of error within the safety critical hypoglycaemic region.
+'optimised_for' reflects the subjective decision that clinicians or patients may wish to make to minimise model errors across all glycaemic regions or to prioritise minimisation of error within the safety critical hypoglycaemic region.
 
 The available 'optimised_for' options are:
 
