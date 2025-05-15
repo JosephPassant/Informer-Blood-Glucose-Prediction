@@ -51,6 +51,9 @@ python -m venv jpformer
 source jpformer/bin/activate
 pip install -r requirements.txt
 ```
+  
+If using linux TKinter may not be installed by default and should be installed using your package manager.
+
 
 ## **3. Data**
 
