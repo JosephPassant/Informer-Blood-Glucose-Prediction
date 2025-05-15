@@ -138,6 +138,8 @@ The influence of the following aspects were then evaluated leading to the final 
 
 The final JPFormer model is located at [models/jpformer/jpformer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/jpformer/jpformer.py).
 
+The final model weights can be found [here](models/jpformer/population_jpformer_final_model/population_jpformer_replace_bg_aggregate_results/jpformer_dual_weighted_rmse_loss_func_high_dim_4_enc_lyrs_high_dropout_0.5696_MAE_0.3965.pth).
+
 #### **4.1.2 Personalised Models**
 
 Personlised fine-tuning of the JPFormer model was performed for 10 epochs.
@@ -146,6 +148,14 @@ The inflence of the following aspects were evaluated leading to the final fine-t
 * Learning Rate
 * Batch Size
 * Dropout
+  
+Personalised modes for the 12 patients within the OHIOT1DM can be found at:
+models/jpformer/fine_tuning_development_files/loss_function_weights_lowest/patient_540
+
+replace '540' with the patient id of interest.
+
+The available ID numbers are:
+[540, 544, 552, 559, 563, 567, 570, 575, 584, 588, 591, 596]
 
 ### **4.3 Informer**
 
@@ -155,6 +165,8 @@ Impelmentation followed that detailed in the following repository:
 https://github.com/zhouhaoyi/Informer2020
 
 The informer model used is located at [models/informer/Informer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/informer/Informer.py).
+
+The Informer model weights can be found [here](models/informer/informer_replace_bg_aggregate_results/jpformer_final_model_0.5810_MAE_0.4020.pth).
 
 ### **4.4 GPFormer**
 
@@ -170,6 +182,8 @@ However, given the controlled experimental design the following aspects were not
 
 The GPFormer model used is located at [models/gpformer/GPFormer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/gpformer/GPFormer.py).
 
+The GPFormer model weights can be found [here](models/gpformer/gpformer_replace_bg_aggregate_results/gpformer_final_model_0.5971_MAE_0.4225.pth).
+
 ### **4.5 BGFormer**
 
 BGfomer is described in [Xue et al., (2024)](https://www.sciencedirect.com/science/article/abs/pii/S1532046424001333?via%3Dihub).
@@ -177,6 +191,9 @@ BGfomer is described in [Xue et al., (2024)](https://www.sciencedirect.com/scien
 The implementation of BGFormer was the developed without access to the original code and followed interpretation of the paper and therefore it may not fully reflect the original model. A known difference between the original model and implementation within this paper is the exclusion of the feature enhancement module.
 
 The BGFormer model used is located at [models/bgformer/BGFormer.py](https://github.com/JosephPassant/Informer-based-Blood-Glucose-Prediction/blob/main/models/bgformer/BGFormer.py).
+
+The BGFormer model weights can be found [here](models/bgformer/bgformer_replace_bg_aggregate_results/bgformer_final_model_0.5562_MAE_0.3787.pth).
+  
 
 ## **5. Clinically Weighted Loss Function**
 
