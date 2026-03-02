@@ -1,4 +1,4 @@
-# **Informer-based Blood Glucose Prediction**
+# **Informer Based Blood Glucose Prediction**
 
 This repository contains the implementation of JPFormer and other Informer-based models for blood glucose prediction in Type 1 Diabetes Patients.
 
